@@ -5,6 +5,23 @@ const CONFIG = {
     mockMode: true // Ativa resposta simulada se não houver API Key
 };
 
+// --- DOM ELEMENTS ---
+const DOM = {};
+
+function initDOM() {
+    DOM.inputClt = document.getElementById('input-clt');
+    DOM.inputPj = document.getElementById('input-pj');
+    DOM.resClt = document.getElementById('res-clt');
+    DOM.resPj = document.getElementById('res-pj');
+    DOM.verdict = document.getElementById('verdict');
+    DOM.barClt = document.getElementById('bar-clt');
+    DOM.barPj = document.getElementById('bar-pj');
+    DOM.btnIa = document.getElementById('btn-ia');
+    DOM.iaResult = document.getElementById('ia-result');
+    DOM.proBtn = document.getElementById('btn-analise-pro');
+    DOM.proOptions = document.getElementById('analise-opcoes');
+}
+
 // --- UTILS ---
 
 function formatMoney(value) {
@@ -25,14 +42,10 @@ function formatCurrencyInput(value) {
 // --- CORE LOGIC ---
 
 function calculate() {
-    // Busca valores crus dos inputs
-    const cltInput = document.getElementById('input-clt');
-    const pjInput = document.getElementById('input-pj');
-    
     // Obtém valores numéricos limpos (data-value ou parse direto se não tiver máscara ainda)
     // Se estivermos usando máscara, o value visual é "R$ 6.000,00", então precisamos limpar
-    const cltVal = parseCurrency(cltInput.value) || 0;
-    const pjVal = parseCurrency(pjInput.value) || 0;
+    const cltVal = parseCurrency(DOM.inputClt.value) || 0;
+    const pjVal = parseCurrency(DOM.inputPj.value) || 0;
 
     // Simulação Simplificada
     // CLT: (Salário * 13.33 meses) - ~18% descontos médios (INSS+IR) simplificado
@@ -42,44 +55,36 @@ function calculate() {
     const pjTotal = (pjVal * 12) * 0.90;
 
     // Atualiza DOM
-    const resClt = document.getElementById('res-clt');
-    const resPj = document.getElementById('res-pj');
-    const verdict = document.getElementById('verdict');
-    const barClt = document.getElementById('bar-clt');
-    const barPj = document.getElementById('bar-pj');
-
-    resClt.innerText = formatMoney(cltTotal);
-    resPj.innerText = formatMoney(pjTotal);
+    DOM.resClt.innerText = formatMoney(cltTotal);
+    DOM.resPj.innerText = formatMoney(pjTotal);
 
     // Animação das barras
     const max = Math.max(cltTotal, pjTotal) * 1.1 || 1; // Evita divisão por zero
     const cltPercent = (cltTotal / max) * 100;
     const pjPercent = (pjTotal / max) * 100;
 
-    barClt.style.width = `${cltPercent}%`;
-    barPj.style.width = `${pjPercent}%`;
+    DOM.barClt.style.width = `${cltPercent}%`;
+    DOM.barPj.style.width = `${pjPercent}%`;
 
     if (pjTotal > cltTotal) {
         const diff = pjTotal - cltTotal;
-        verdict.innerHTML = `CNPJ rende aprox. <span class="text-amber-400 font-bold">+${formatMoney(diff)}</span> por ano`;
-        resPj.className = "font-bold text-amber-400 text-lg";
-        barPj.className = "bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-400 h-2 rounded-full transition-all duration-500";
+        DOM.verdict.innerHTML = `CNPJ rende aprox. <span class="text-amber-400 font-bold">+${formatMoney(diff)}</span> por ano`;
+        DOM.resPj.className = "font-bold text-amber-400 text-lg";
+        DOM.barPj.className = "bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-400 h-2 rounded-full transition-all duration-500";
     } else {
         const diff = cltTotal - pjTotal;
-        verdict.innerHTML = `CLT rende aprox. <span class="text-amber-300 font-bold">+${formatMoney(diff)}</span> por ano`;
-        resPj.className = "font-bold text-slate-400 text-lg";
-        barPj.className = "bg-slate-500 h-2 rounded-full transition-all duration-500";
+        DOM.verdict.innerHTML = `CLT rende aprox. <span class="text-amber-300 font-bold">+${formatMoney(diff)}</span> por ano`;
+        DOM.resPj.className = "font-bold text-slate-400 text-lg";
+        DOM.barPj.className = "bg-slate-500 h-2 rounded-full transition-all duration-500";
     }
 }
 
 // --- EVENT HANDLERS ---
 
 function setupInputs() {
-    const inputs = ['input-clt', 'input-pj'];
+    const inputs = [DOM.inputClt, DOM.inputPj];
     
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        
+    inputs.forEach(el => {
         // Inicializa com formatação
         // O valor inicial no HTML é numérico puro (ex: 6000). Vamos formatar ao carregar.
         if(el.value && !el.value.includes('R$')) {
@@ -126,16 +131,11 @@ async function fetchWithExponentialBackoff(url, options, maxRetries = 3) {
 }
 
 async function handleAnalysisClick() {
-    const btn = document.getElementById('btn-ia');
-    const resultDiv = document.getElementById('ia-result');
-    const cltInput = document.getElementById('input-clt');
-    const pjInput = document.getElementById('input-pj');
-
     // Estado de loading
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<div class="loader mr-2" style="border-top-color: white; width: 16px; height: 16px; display: inline-block;"></div> Analisando...';
-    btn.disabled = true;
-    resultDiv.classList.add('hidden');
+    const originalText = DOM.btnIa.innerHTML;
+    DOM.btnIa.innerHTML = '<div class="loader mr-2" style="border-top-color: white; width: 16px; height: 16px; display: inline-block;"></div> Analisando...';
+    DOM.btnIa.disabled = true;
+    DOM.iaResult.classList.add('hidden');
 
     try {
         let analysisText = "";
@@ -145,8 +145,8 @@ async function handleAnalysisClick() {
                 // Simulação de delay de rede
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                const cltVal = parseCurrency(cltInput.value);
-                const pjVal = parseCurrency(pjInput.value);
+                const cltVal = parseCurrency(DOM.inputClt.value);
+                const pjVal = parseCurrency(DOM.inputPj.value);
                 analysisText = buildAnalysisPreview(cltVal, pjVal);
             } else {
                 throw new Error("Chave de API não configurada.");
@@ -154,7 +154,7 @@ async function handleAnalysisClick() {
         } else {
             // Chamada Real
             const systemPrompt = "Você é um consultor financeiro. Compare CLT vs PJ baseado nos valores, focando em segurança vs liquidez. Resposta curta (max 30 palavras).";
-            const userQuery = `CLT: ${cltInput.value}. PJ: ${pjInput.value}.`;
+            const userQuery = `CLT: ${DOM.inputClt.value}. PJ: ${DOM.inputPj.value}.`;
 
             const payload = {
                 contents: [{ parts: [{ text: userQuery }] }],
@@ -170,16 +170,16 @@ async function handleAnalysisClick() {
             analysisText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na geração.";
         }
         
-        resultDiv.innerHTML = analysisText;
-        resultDiv.classList.remove('hidden');
+        DOM.iaResult.innerHTML = analysisText;
+        DOM.iaResult.classList.remove('hidden');
 
     } catch (error) {
         console.error(error);
-        resultDiv.innerHTML = `<span class="text-red-600">Erro: ${error.message}</span>`;
-        resultDiv.classList.remove('hidden');
+        DOM.iaResult.innerHTML = `<span class="text-red-600">Erro: ${error.message}</span>`;
+        DOM.iaResult.classList.remove('hidden');
     } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        DOM.btnIa.innerHTML = originalText;
+        DOM.btnIa.disabled = false;
     }
 }
 
@@ -230,14 +230,13 @@ function buildAnalysisPreview(cltVal, pjVal) {
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+    initDOM();
     setupInputs();
     calculate(); // Calculo inicial
 
-    const proBtn = document.getElementById('btn-analise-pro');
-    const proOptions = document.getElementById('analise-opcoes');
-    if (proBtn && proOptions) {
-        proBtn.addEventListener('click', () => {
-            proOptions.classList.toggle('hidden');
+    if (DOM.proBtn && DOM.proOptions) {
+        DOM.proBtn.addEventListener('click', () => {
+            DOM.proOptions.classList.toggle('hidden');
         });
     }
     
