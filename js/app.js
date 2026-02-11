@@ -18,8 +18,7 @@ function parseCurrency(value) {
 
 function formatCurrencyInput(value) {
     // Formata o número cru para visualização BRL
-    const number = value.replace(/\D/g, "") / 100;
-    return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    return formatMoney(parseCurrency(value));
 }
 
 // --- CORE LOGIC ---
@@ -83,7 +82,7 @@ function setupInputs() {
         // Inicializa com formatação
         // O valor inicial no HTML é numérico puro (ex: 6000). Vamos formatar ao carregar.
         if(el.value && !el.value.includes('R$')) {
-            el.value = (parseFloat(el.value)).toLocaleString('pt-BR', { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' });
+            el.value = formatMoney(parseFloat(el.value));
         }
 
         el.addEventListener('input', (e) => {
