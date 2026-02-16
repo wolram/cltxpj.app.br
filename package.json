@@ -1,0 +1,9 @@
+{
+  "name": "clt-x-pj-calculator",
+  "version": "1.0.0",
+  "description": "Calculadora CLT x CNPJ",
+  "main": "js/app.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

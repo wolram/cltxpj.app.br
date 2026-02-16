@@ -229,25 +229,35 @@ function buildAnalysisPreview(cltVal, pjVal) {
 }
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    setupInputs();
-    calculate(); // Calculo inicial
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setupInputs();
+        calculate(); // Calculo inicial
 
-    const proBtn = document.getElementById('btn-analise-pro');
-    const proOptions = document.getElementById('analise-opcoes');
-    if (proBtn && proOptions) {
-        proBtn.addEventListener('click', () => {
-            proOptions.classList.toggle('hidden');
-        });
-    }
-    
-    // Configura botão android
-    const androidBtn = document.querySelector('button disabled') || document.querySelectorAll('button')[1]; // Fallback selector
-    if(androidBtn) {
-         // Remove disabled para permitir clique com aviso
-         androidBtn.removeAttribute('disabled');
-         androidBtn.classList.remove('cursor-not-allowed', 'opacity-60', 'grayscale');
-         androidBtn.classList.add('hover:bg-gray-200');
-         androidBtn.onclick = handleAndroidClick;
-    }
-});
+        const proBtn = document.getElementById('btn-analise-pro');
+        const proOptions = document.getElementById('analise-opcoes');
+        if (proBtn && proOptions) {
+            proBtn.addEventListener('click', () => {
+                proOptions.classList.toggle('hidden');
+            });
+        }
+
+        // Configura botão android
+        const androidBtn = document.querySelector('button disabled') || document.querySelectorAll('button')[1]; // Fallback selector
+        if(androidBtn) {
+            // Remove disabled para permitir clique com aviso
+            androidBtn.removeAttribute('disabled');
+            androidBtn.classList.remove('cursor-not-allowed', 'opacity-60', 'grayscale');
+            androidBtn.classList.add('hover:bg-gray-200');
+            androidBtn.onclick = handleAndroidClick;
+        }
+    });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        formatMoney,
+        parseCurrency,
+        formatCurrencyInput
+    };
+}
